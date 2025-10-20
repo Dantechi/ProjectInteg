@@ -1,9 +1,143 @@
-# Test your FastAPI endpoints
+### Crear refugios
+POST http://127.0.0.1:8000/refugios/
+Content-Type: application/json
 
-GET http://127.0.0.1:8000/
-Accept: application/json
-###
+{
+  "nombre": "Refugio Esperanza Animal",
+  "ubicacion": "Bogotá"
+}
 
-GET http://127.0.0.1:8000/hello/User
-Accept: application/json
 ###
+POST http://127.0.0.1:8000/refugios/
+Content-Type: application/json
+
+{
+  "nombre": "Huellitas del Valle",
+  "ubicacion": "Cali"
+}
+
+###
+POST http://127.0.0.1:8000/refugios/
+Content-Type: application/json
+
+{
+  "nombre": "Refugio Patitas Felices",
+  "ubicacion": "Medellín"
+}
+
+###
+GET http://127.0.0.1:8000/refugios/
+
+
+### Crear mascotas
+POST http://127.0.0.1:8000/mascotas/
+Content-Type: application/json
+
+{
+  "nombre": "Luna",
+  "especie": "Cat",
+  "raza": "Siamés",
+  "edad": 2,
+  "sexo": "F",
+  "refugio_id": 1
+}
+
+###
+POST http://127.0.0.1:8000/mascotas/
+Content-Type: application/json
+
+{
+  "nombre": "Max",
+  "especie": "Dog",
+  "raza": "Labrador",
+  "edad": 4,
+  "sexo": "M",
+  "refugio_id": 1
+}
+
+###
+POST http://127.0.0.1:8000/mascotas/
+Content-Type: application/json
+
+{
+  "nombre": "Coco",
+  "especie": "Bird",
+  "raza": "Perico",
+  "edad": 1,
+  "sexo": "M",
+  "refugio_id": 2
+}
+
+###
+GET http://127.0.0.1:8000/mascotas/
+
+
+### Crear historiales
+POST http://127.0.0.1:8000/historial/
+Content-Type: application/json
+
+{
+  "mascota_id": 1,
+  "tipo_evento": "Vacunación antirrábica",
+  "costo": 45.0
+}
+
+###
+POST http://127.0.0.1:8000/historial/
+Content-Type: application/json
+
+{
+  "mascota_id": 2,
+  "tipo_evento": "Desparasitación",
+  "costo": 30.0
+}
+
+###
+GET http://127.0.0.1:8000/historial/mascota/1
+
+
+### Crear adopciones
+POST http://127.0.0.1:8000/adopciones/
+Content-Type: application/json
+
+{
+  "mascota_id": 1,
+  "refugio_id": 1,
+  "adoptante": "Laura Pérez",
+  "fecha_adopcion": "2023-11-15"
+}
+
+###
+POST http://127.0.0.1:8000/adopciones/
+Content-Type: application/json
+
+{
+  "mascota_id": 2,
+  "refugio_id": 2,
+  "adoptante": "Juan Rodríguez",
+  "fecha_adopcion": "2024-02-10"
+}
+
+###
+GET http://127.0.0.1:8000/adopciones/
+
+###
+GET http://127.0.0.1:8000/adopciones/por-anio/2023
+
+
+### Prueba de error
+POST http://127.0.0.1:8000/historial/
+Content-Type: application/json
+
+{
+  "mascota_id": 999,
+  "tipo_evento": "Vacuna no existente",
+  "costo": 50.0
+}
+
+
+### Eliminar (inactivar) mascota
+DELETE http://127.0.0.1:8000/mascotas/2
+
+###
+GET http://127.0.0.1:8000/mascotas/2
