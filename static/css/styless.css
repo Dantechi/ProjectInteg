@@ -1,0 +1,152 @@
+/* Fondo general */
+body {
+    background: radial-gradient(circle at top left, #eff6ff, #f3f4f6);
+    color: #111827;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Contenedor principal */
+.app-container {
+    max-width: 1100px;
+}
+
+/* Navbar */
+.app-navbar {
+    background: linear-gradient(90deg, #2563eb, #1d4ed8);
+}
+
+/* Hero card */
+.app-hero-card {
+    background: linear-gradient(135deg, #1d4ed8, #22c55e);
+    color: #f9fafb;
+    border-radius: 1.25rem;
+    padding: 2rem;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.45);
+}
+
+/* Hero side stats */
+.app-hero-side {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+}
+
+.stat-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+}
+
+.bg-icon-blue {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.bg-icon-green {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.bg-icon-yellow {
+    background: linear-gradient(135deg, #facc15, #eab308);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6b7280;
+}
+
+.stat-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+/* Tarjetas genéricas */
+.app-card {
+    background-color: #ffffff;
+    border-radius: 0.9rem;
+    padding: 1.25rem;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.app-card-clickable {
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+.app-card-clickable:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.2);
+}
+
+/* Tarjeta de error */
+.app-card-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 0.9rem;
+    padding: 1.5rem;
+}
+
+/* Tarjetas específicas */
+.refuge-card, .pet-card {
+    position: relative;
+}
+
+/* Imágenes de refugios */
+.refuge-image-wrapper {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    border-radius: 0.75rem;
+}
+
+.refuge-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Imágenes de mascotas */
+.pet-image-wrapper {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    border-radius: 0.75rem;
+}
+
+.pet-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Footer */
+.app-footer {
+    border-top: 1px solid rgba(148, 163, 184, 0.5);
+    background-color: #e5e7eb;
+}
+.app-footer a {
+    text-decoration: none;
+}
+
+/* Botones */
+.btn-primary {
+    background-color: #2563eb;
+    border-color: #2563eb;
+}
+
+.btn-primary:hover {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+}

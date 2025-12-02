@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Mascotas · Refugios & Adopciones{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Mascotas registradas</h2>
+    <span class="badge rounded-pill bg-primary">
+        Total: {{ mascotas|length }}
+    </span>
+</div>
+
+{% if refugio_id %}
+<p class="text-muted">
+    Mostrando mascotas filtradas por refugio ID: <code>{{ refugio_id }}</code>
+</p>
+{% endif %}
+
+{% if mascotas %}
+<div class="row g-3">
+    {% for m in mascotas %}
+    <div class="col-md-4">
+        <div class="app-card pet-card h-100">
+            {% if m.foto_url %}
+            <div class="pet-image-wrapper mb-2">
+                <img src="{{ m.foto_url }}" alt="{{ m.nombre }}" class="pet-image">
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <h5 class="mb-0">{{ m.nombre }}</h5>
+                <span class="badge bg-secondary">{{ m.especie.value }}</span>
+            </div>
+
+            <p class="mb-1 text-muted">
+                {% if m.raza %}{{ m.raza }} · {% endif %}
+                {{ m.edad }} año(s) · {{ 'Macho' if m.sexo == 'M' else 'Hembra' if m.sexo == 'F' else m.sexo }}
+            </p>
+
+            <span class="badge {{ 'bg-success' if m.estado else 'bg-danger' }}">
+                {{ 'Disponible' if m.estado else 'No disponible' }}
+            </span>
+
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">
+    No hay mascotas registradas todavía. Crea algunas usando los endpoints de la API.
+</div>
+{% endif %}
+
+{% endblock %}

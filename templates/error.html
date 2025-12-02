@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Error {{ status_code }} · Refugios & Adopciones{% endblock %}
+
+{% block content %}
+<div class="app-card app-card-error">
+    <h3 class="mb-2">Ocurrió un error</h3>
+    <p class="mb-1">
+        Código de estado: <strong>{{ status_code }}</strong>
+    </p>
+    {% if detail %}
+    <p class="text-muted mb-3">
+        Detalle: {{ detail }}
+    </p>
+    {% endif %}
+    <a href="/" class="btn btn-primary">Volver al inicio</a>
+</div>
+{% endblock %}

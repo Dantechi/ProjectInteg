@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Refugios · Refugios & Adopciones{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Refugios registrados</h2>
+    <span class="badge rounded-pill bg-primary">
+        Total: {{ refugios|length }}
+    </span>
+</div>
+
+{% if refugios %}
+<div class="row g-3">
+    {% for r in refugios %}
+    <div class="col-md-4">
+        <div class="app-card refuge-card h-100">
+            {% if r.foto_url %}
+            <div class="refuge-image-wrapper mb-2">
+                <img src="{{ r.foto_url }}" alt="{{ r.nombre }}" class="refuge-image">
+            </div>
+            {% endif %}
+            <h5 class="mb-1">{{ r.nombre }}</h5>
+            <p class="text-muted mb-2">
+                {{ r.ubicacion }}
+            </p>
+            <span class="badge {{ 'bg-success' if r.activo else 'bg-secondary' }}">
+                {{ 'Activo' if r.activo else 'Inactivo' }}
+            </span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">
+    No hay refugios registrados todavía. Crea algunos usando los endpoints de la API.
+</div>
+{% endif %}
+
+{% endblock %}

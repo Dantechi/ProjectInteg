@@ -1,10 +1,84 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Inicio · Refugios & Adopciones{% endblock %}
+
+{% block content %}
+
+<div class="row align-items-center mb-4">
+    <div class="col-12 col-lg-7">
+        <div class="app-hero-card">
+            <h1 class="mb-2">{{ app_name }}</h1>
+            <p class="lead mb-3">{{ subtitle }}</p>
+            <p class="mb-4 text-muted">
+                Backend desplegado con FastAPI, Clever Cloud (PostgreSQL), Render y Supabase para gestión de imágenes.
+            </p>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="/web/refugios" class="btn btn-primary btn-lg">
+                    Ver refugios
+                </a>
+                <a href="/web/mascotas" class="btn btn-outline-light btn-lg">
+                    Ver mascotas
+                </a>
+                <a href="/docs" class="btn btn-outline-secondary">
+                    Ver documentación de la API
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-5 mt-4 mt-lg-0">
+        <div class="app-hero-side">
+            <div class="stat-card">
+                <div class="stat-icon bg-icon-blue"></div>
+                <div>
+                    <div class="stat-label">Base de datos</div>
+                    <div class="stat-value">PostgreSQL · Clever Cloud</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon bg-icon-green"></div>
+                <div>
+                    <div class="stat-label">Despliegue</div>
+                    <div class="stat-value">Render Web Service</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon bg-icon-yellow"></div>
+                <div>
+                    <div class="stat-label">Imágenes</div>
+                    <div class="stat-value">Supabase Storage</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr class="my-4">
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="app-card app-card-clickable">
+            <h5 class="mb-2">Refugios</h5>
+            <p class="mb-3">Crea y gestiona refugios con su ubicación, estado y foto representativa.</p>
+            <a href="/web/refugios" class="btn btn-sm btn-primary">Ir a refugios</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="app-card app-card-clickable">
+            <h5 class="mb-2">Mascotas</h5>
+            <p class="mb-3">Registra mascotas, especie, edad y fotografía almacenada en Supabase.</p>
+            <a href="/web/mascotas" class="btn btn-sm btn-primary">Ir a mascotas</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="app-card app-card-clickable">
+            <h5 class="mb-2">API REST</h5>
+            <p class="mb-3">Consume los endpoints JSON para integrarlos con otros sistemas o frontends.</p>
+            <a href="/docs" class="btn btn-sm btn-outline-secondary">Ver Swagger</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
