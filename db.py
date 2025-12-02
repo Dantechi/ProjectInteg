@@ -7,6 +7,7 @@ from fastapi import Depends
 from sqlmodel import SQLModel
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool  # <- NUEVO
 
 # 1. Cargar variables de entorno desde .env
 load_dotenv()
@@ -20,14 +21,12 @@ CLEVER_DB = (
     f"{os.getenv('POSTGRESQL_ADDON_DB')}"
 )
 
-# (Opcional) puedes imprimirla para depurar, pero OJO que muestra el password.
-# print("DB URL:", CLEVER_DB)
-
-# 3. Crear el engine asíncrono
+# 3. Crear el engine asíncrono, sin pool persistente
 engine: AsyncEngine = create_async_engine(
     CLEVER_DB,
-    echo=True,    # ponlo en False si no quieres ver el SQL en consola
+    echo=True,
     future=True,
+    poolclass=NullPool,   # <- aquí la clave
 )
 
 # 4. Crear el sessionmaker para AsyncSession
@@ -42,10 +41,6 @@ async_session_maker = sessionmaker(
 
 # 5. Función para crear tablas al inicio de la app
 async def create_tables() -> None:
-    """
-    Crea todas las tablas definidas en SQLModel.metadata.
-    Se llama una sola vez al iniciar la aplicación con lifespan.
-    """
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
