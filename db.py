@@ -1,19 +1,59 @@
-from fastapi import FastAPI, Depends
-from sqlmodel import SQLModel, create_engine, Session
+# db.py
+import os
 from typing import Annotated
 
-db_name = "adopciones.sqlite3"
-db_url = f"sqlite:///{db_name}"
+from dotenv import load_dotenv
+from fastapi import Depends
+from sqlmodel import SQLModel
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
-engine = create_engine(db_url, echo=False)
+# 1. Cargar variables de entorno desde .env
+load_dotenv()
 
-def create_tables(app: FastAPI):
-    print("🔧 Creando tablas (si no existen)...")
-    SQLModel.metadata.create_all(engine)
-    yield
+# 2. Construir la URL de conexión a Clever Cloud
+CLEVER_DB = (
+    f"postgresql+asyncpg://{os.getenv('POSTGRESQL_ADDON_USER')}:"
+    f"{os.getenv('POSTGRESQL_ADDON_PASSWORD')}@"
+    f"{os.getenv('POSTGRESQL_ADDON_HOST')}:"
+    f"{os.getenv('POSTGRESQL_ADDON_PORT')}/"
+    f"{os.getenv('POSTGRESQL_ADDON_DB')}"
+)
 
-def get_session() -> Session:
-    with Session(engine) as session:
+# (Opcional) puedes imprimirla para depurar, pero OJO que muestra el password.
+# print("DB URL:", CLEVER_DB)
+
+# 3. Crear el engine asíncrono
+engine: AsyncEngine = create_async_engine(
+    CLEVER_DB,
+    echo=True,    # ponlo en False si no quieres ver el SQL en consola
+    future=True,
+)
+
+# 4. Crear el sessionmaker para AsyncSession
+async_session_maker = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    autoflush=False,
+    autocommit=False,
+)
+
+
+# 5. Función para crear tablas al inicio de la app
+async def create_tables() -> None:
+    """
+    Crea todas las tablas definidas en SQLModel.metadata.
+    Se llama una sola vez al iniciar la aplicación con lifespan.
+    """
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
+
+
+# 6. Dependencia para obtener una sesión por request
+async def get_session() -> AsyncSession:
+    async with async_session_maker() as session:
         yield session
 
-SessionDep = Annotated[Session, Depends(get_session)]
+
+SessionDep = Annotated[AsyncSession, Depends(get_session)]

@@ -16,5 +16,12 @@
         </library>
       </libraries>
     </data-source>
+    <data-source source="LOCAL" name="btzmhcrnilmnsngyyapl@btzmhcrnilmnsngyyapl-postgresql.services.clever-cloud.com" uuid="b74255a3-9d78-4a61-a5cb-1eca11d2a9b9">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://btzmhcrnilmnsngyyapl-postgresql.services.clever-cloud.com:50013/btzmhcrnilmnsngyyapl</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
