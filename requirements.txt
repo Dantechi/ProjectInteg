@@ -7,3 +7,4 @@ python-dotenv
 greenlet
 supabase==2.24.0
 python-multipart==0.0.20
+jinja2
