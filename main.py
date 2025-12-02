@@ -5,14 +5,13 @@ from fastapi import FastAPI
 
 from db import create_tables
 import refugio, mascota, historial, adopcion
+import upload  # <-- NUEVO
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Se ejecuta al iniciar la app
     await create_tables()
     yield
-    # Aquí podrías cerrar recursos si fuera necesario al apagar la app
 
 
 app = FastAPI(
@@ -24,8 +23,8 @@ app = FastAPI(
 app.include_router(refugio.router)
 app.include_router(mascota.router)
 app.include_router(historial.router)
-app.include_router(historial.router)
 app.include_router(adopcion.router)
+app.include_router(upload.router)   # <-- NUEVO
 
 
 @app.get("/")
