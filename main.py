@@ -4,8 +4,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from db import create_tables
-import refugio, mascota, historial, adopcion
-import upload  # <-- NUEVO
+import refugio
+import mascota
+import historial
+import adopcion
+import upload
+import stats  # <-- NUEVO
 
 
 @asynccontextmanager
@@ -17,16 +21,18 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     lifespan=lifespan,
     title="Adopciones API",
-    version="1.0.0",
+    version="2.0.0",
+    description="API para gestión de refugios, mascotas, adopciones, historial y estadísticas.",
 )
 
 app.include_router(refugio.router)
 app.include_router(mascota.router)
 app.include_router(historial.router)
 app.include_router(adopcion.router)
-app.include_router(upload.router)   # <-- NUEVO
+app.include_router(upload.router)
+app.include_router(stats.router)
 
 
-@app.get("/")
+@app.get("/", tags=["healthcheck"])
 async def root():
     return {"message": "API de Adopciones y Cuidado de Mascotas funcionando correctamente 🐾"}

@@ -1,9 +1,12 @@
+# models.py
 import datetime
-from sqlmodel import SQLModel, Field, Relationship
 from enum import Enum
+
+from sqlmodel import SQLModel, Field, Relationship
 
 
 # ---------- ENUM ----------
+
 class Kind(str, Enum):
     Dog = "Dog"
     Cat = "Cat"
@@ -12,10 +15,12 @@ class Kind(str, Enum):
 
 
 # ---------- BASE MODELS ----------
+
 class RefugioBase(SQLModel):
     nombre: str
     ubicacion: str
     activo: bool = True
+    foto_url: str | None = Field(default=None, description="Foto del refugio (URL en Supabase)")
 
 
 class MascotaBase(SQLModel):
@@ -25,6 +30,7 @@ class MascotaBase(SQLModel):
     edad: int
     sexo: str
     estado: bool = True
+    foto_url: str | None = Field(default=None, description="Foto de la mascota (URL en Supabase)")
 
 
 class AdopcionBase(SQLModel):
@@ -39,8 +45,10 @@ class HistorialCuidadoBase(SQLModel):
 
 
 # ---------- TABLE MODELS ----------
+
 class Refugio(RefugioBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
+
     mascotas: list["Mascota"] = Relationship(back_populates="refugio")
     adopciones: list["Adopcion"] = Relationship(back_populates="refugio")
 
@@ -48,7 +56,8 @@ class Refugio(RefugioBase, table=True):
 class Mascota(MascotaBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     refugio_id: int = Field(foreign_key="refugio.id")
-    refugio: "Refugio" = Relationship(back_populates="mascotas")
+
+    refugio: Refugio = Relationship(back_populates="mascotas")
     historial: list["HistorialCuidado"] = Relationship(back_populates="mascota")
     adopciones: list["Adopcion"] = Relationship(back_populates="mascota")
 
@@ -57,27 +66,47 @@ class Adopcion(AdopcionBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     mascota_id: int = Field(foreign_key="mascota.id")
     refugio_id: int = Field(foreign_key="refugio.id")
-    mascota: "Mascota" = Relationship(back_populates="adopciones")
-    refugio: "Refugio" = Relationship(back_populates="adopciones")
+
+    mascota: Mascota = Relationship(back_populates="adopciones")
+    refugio: Refugio = Relationship(back_populates="adopciones")
 
 
 class HistorialCuidado(HistorialCuidadoBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     mascota_id: int = Field(foreign_key="mascota.id")
-    mascota: "Mascota" = Relationship(back_populates="historial")
+
+    mascota: Mascota = Relationship(back_populates="historial")
 
 
-# ---------- CREATE / UPDATE MODELS ----------
+# ---------- MODELOS DE ENTRADA / ACTUALIZACIÓN ----------
+
 class RefugioCreate(RefugioBase):
+    """Datos para crear un refugio."""
     pass
+
+
+class RefugioUpdate(SQLModel):
+    nombre: str | None = None
+    ubicacion: str | None = None
+    activo: bool | None = None
+    foto_url: str | None = None
 
 
 class MascotaCreate(MascotaBase):
+    """Datos para crear una mascota."""
     refugio_id: int
 
 
-class MascotaUpdate(MascotaBase):
-    pass
+class MascotaUpdate(SQLModel):
+    """Campos opcionales para actualizar una mascota."""
+    nombre: str | None = None
+    especie: Kind | None = None
+    raza: str | None = None
+    edad: int | None = None
+    sexo: str | None = None
+    estado: bool | None = None
+    foto_url: str | None = None
+    refugio_id: int | None = None
 
 
 class AdopcionCreate(AdopcionBase):
