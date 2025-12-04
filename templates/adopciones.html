@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Adopciones - Refugios & Adopciones{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Adopciones</h2>
+    <a class="btn btn-outline-secondary btn-sm" href="/docs" target="_blank" rel="noopener">Ver API</a>
+  </div>
+
+{% if ok %}
+<div class="alert alert-success">Adopcion registrada correctamente.</div>
+{% endif %}
+{% if error %}
+<div class="alert alert-danger">Error al registrar adopcion: {{ error }}</div>
+{% endif %}
+
+{% if adopciones %}
+<div class="table-responsive">
+  <table class="table table-sm align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Mascota</th>
+        <th>Refugio</th>
+        <th>Adoptante</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in adopciones %}
+      <tr>
+        <td>{{ a.id }}</td>
+        <td>{{ a.mascota }}</td>
+        <td>{{ a.refugio }}</td>
+        <td>{{ a.adoptante }}</td>
+        <td>{{ a.fecha_adopcion }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">No hay adopciones registradas.</div>
+{% endif %}
+{% endblock %}

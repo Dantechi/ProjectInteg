@@ -1,41 +1,306 @@
 {% extends "base.html" %}
 
-{% block title %}Refugios · Refugios & Adopciones{% endblock %}
+{% block title %}Refugios - Refugios & Adopciones{% endblock %}
 
 {% block content %}
 
+{% set activos = refugios | selectattr('activo') | list %}
+{% set inactivos = refugios | rejectattr('activo') | list %}
+
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Refugios registrados</h2>
-    <span class="badge rounded-pill bg-primary">
-        Total: {{ refugios|length }}
-    </span>
+    <div>
+        <h2 class="mb-1">Refugios registrados</h2>
+        <p class="text-muted mb-0">Gestiona altas, estado, fotos y enlaza mascotas.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge rounded-pill bg-primary">Total: {{ refugios|length }}</span>
+        <span class="badge rounded-pill bg-success">Activos: {{ activos|length }}</span>
+        <span class="badge rounded-pill bg-secondary">Inactivos: {{ inactivos|length }}</span>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-5">
+        <div class="form-section">
+            <div class="section-title">
+                <span class="dot"></span>
+                <div>
+                    <h5 class="mb-0">Crear nuevo refugio</h5>
+                    <small class="text-muted">POST /refugios/ (JSON)</small>
+                </div>
+            </div>
+            <form id="create-refugio-form" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" name="nombre" class="form-control" placeholder="Ej. Refugio Patitas" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ubicacion</label>
+                    <input type="text" name="ubicacion" class="form-control" placeholder="Ciudad, direccion" required>
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="refugio-activo" name="activo" checked>
+                    <label class="form-check-label" for="refugio-activo">Activo</label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Guardar refugio</button>
+            </form>
+        </div>
+    </div>
+    <!-- Nota: Se retiró el bloque de “tips rápidos” que era contenido temporal de apoyo. -->
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">Listado actual</h5>
+    <a class="btn btn-outline-secondary btn-sm" href="/docs" target="_blank" rel="noopener">Ver docs de la API</a>
 </div>
 
 {% if refugios %}
 <div class="row g-3">
     {% for r in refugios %}
     <div class="col-md-4">
-        <div class="app-card refuge-card h-100">
+        <div class="app-card refuge-card h-100 d-flex flex-column gap-2">
             {% if r.foto_url %}
-            <div class="refuge-image-wrapper mb-2">
-                <img src="{{ r.foto_url }}" alt="{{ r.nombre }}" class="refuge-image">
-            </div>
+                <div class="refuge-image-wrapper">
+                    <img src="{{ r.foto_url }}" alt="{{ r.nombre }}" class="refuge-image">
+                </div>
+            {% else %}
+                <div class="border rounded text-center py-4 text-muted small bg-light">
+                    Sin foto
+                </div>
             {% endif %}
-            <h5 class="mb-1">{{ r.nombre }}</h5>
-            <p class="text-muted mb-2">
-                {{ r.ubicacion }}
-            </p>
-            <span class="badge {{ 'bg-success' if r.activo else 'bg-secondary' }}">
-                {{ 'Activo' if r.activo else 'Inactivo' }}
-            </span>
+
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 class="mb-1">{{ r.nombre }}</h5>
+                    <p class="text-muted mb-1">{{ r.ubicacion }}</p>
+                    <small class="text-muted">ID: {{ r.id }}</small>
+                </div>
+                <span class="badge {{ 'bg-success' if r.activo else 'bg-secondary' }}">
+                    {{ 'Activo' if r.activo else 'Inactivo' }}
+                </span>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-auto">
+                <a class="btn btn-sm btn-outline-primary" href="/web/mascotas?refugio_id={{ r.id }}">Ver mascotas</a>
+                <button class="btn btn-sm btn-outline-secondary" type="button"
+                        data-edit-refugio
+                        data-id="{{ r.id }}"
+                        data-nombre="{{ r.nombre }}"
+                        data-ubicacion="{{ r.ubicacion }}"
+                        data-activo="{{ r.activo }}">
+                    Editar
+                </button>
+                <button class="btn btn-sm btn-outline-dark" type="button"
+                        data-toggle-upload="{{ r.id }}">
+                    Subir foto
+                </button>
+                {% if r.activo %}
+                <button class="btn btn-sm btn-outline-danger" type="button" data-delete-refugio="{{ r.id }}">
+                    Desactivar
+                </button>
+                {% else %}
+                <button class="btn btn-sm btn-outline-success" type="button"
+                        data-reactivate-refugio="{{ r.id }}">
+                    Reactivar
+                </button>
+                {% endif %}
+            </div>
+
+            <form class="upload-form mt-2 d-none" data-refugio-id="{{ r.id }}">
+                <label class="form-label">Archivo de imagen</label>
+                <input type="file" name="file" class="form-control form-control-sm" accept="image/*" required>
+                <div class="d-flex gap-2 mt-2">
+                    <button type="submit" class="btn btn-sm btn-primary">Subir</button>
+                    <button type="button" class="btn btn-sm btn-link text-muted" data-cancel-upload>Cancelar</button>
+                </div>
+            </form>
         </div>
     </div>
     {% endfor %}
 </div>
 {% else %}
 <div class="alert alert-info">
-    No hay refugios registrados todavía. Crea algunos usando los endpoints de la API.
+    No hay refugios registrados todavia. Usa el formulario de arriba para crear uno.
 </div>
 {% endif %}
+
+<!-- Modal editar refugio -->
+<div class="modal fade" id="editRefugioModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar refugio</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-refugio-form">
+            <input type="hidden" name="id">
+            <div class="mb-3">
+                <label class="form-label">Nombre</label>
+                <input type="text" name="nombre" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Ubicacion</label>
+                <input type="text" name="ubicacion" class="form-control" required>
+            </div>
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="edit-refugio-activo" name="activo">
+                <label class="form-check-label" for="edit-refugio-activo">Activo</label>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Guardar cambios</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const createForm = document.getElementById('create-refugio-form');
+    const editModalEl = document.getElementById('editRefugioModal');
+    const editModal = editModalEl ? new bootstrap.Modal(editModalEl) : null;
+    const editForm = document.getElementById('edit-refugio-form');
+
+    createForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = createForm.querySelector('button[type="submit"]');
+        setLoading(submitBtn, true);
+
+        const payload = {
+            nombre: createForm.nombre.value.trim(),
+            ubicacion: createForm.ubicacion.value.trim(),
+            activo: createForm.activo.checked
+        };
+
+        try {
+            await apiFetch('/refugios/', {
+                method: 'POST',
+                body: JSON.stringify(payload),
+            });
+            showMessage('Refugio creado', 'success');
+            window.location.reload();
+        } catch (err) {
+            showMessage(err.message || 'Error al crear refugio', 'danger');
+            setLoading(submitBtn, false, 'Guardando...');
+        }
+    });
+
+    document.querySelectorAll('[data-edit-refugio]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (!editForm || !editModal) return;
+            editForm.id.value = btn.dataset.id;
+            editForm.nombre.value = btn.dataset.nombre || '';
+            editForm.ubicacion.value = btn.dataset.ubicacion || '';
+            editForm.activo.checked = btn.dataset.activo === 'True' || btn.dataset.activo === 'true' || btn.dataset.activo === '1';
+            editModal.show();
+        });
+    });
+
+    editForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = editForm.id.value;
+        const submitBtn = editForm.querySelector('button[type="submit"]');
+        setLoading(submitBtn, true);
+
+        const payload = {
+            nombre: editForm.nombre.value.trim(),
+            ubicacion: editForm.ubicacion.value.trim(),
+            activo: editForm.activo.checked,
+        };
+
+        try {
+            await apiFetch(`/refugios/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(payload),
+            });
+            showMessage('Refugio actualizado', 'success');
+            window.location.reload();
+        } catch (err) {
+            showMessage(err.message || 'Error al actualizar', 'danger');
+            setLoading(submitBtn, false, 'Guardando...');
+        }
+    });
+
+    document.querySelectorAll('[data-delete-refugio]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.deleteRefugio;
+            if (!confirm('Desactivar este refugio?')) return;
+            setLoading(btn, true, 'Desactivando...');
+            try {
+                await apiFetch(`/refugios/${id}`, { method: 'DELETE' });
+                showMessage('Refugio desactivado', 'success');
+                window.location.reload();
+            } catch (err) {
+                showMessage(err.message || 'Error al desactivar', 'danger');
+                setLoading(btn, false, 'Desactivar');
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-reactivate-refugio]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.reactivateRefugio;
+            setLoading(btn, true, 'Activando...');
+            try {
+                await apiFetch(`/refugios/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ activo: true }),
+                });
+                showMessage('Refugio reactivado', 'success');
+                window.location.reload();
+            } catch (err) {
+                showMessage(err.message || 'No se pudo reactivar', 'danger');
+                setLoading(btn, false, 'Reactivar');
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-toggle-upload]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.toggleUpload;
+            const form = document.querySelector(`.upload-form[data-refugio-id="${id}"]`);
+            if (form) {
+                form.classList.toggle('d-none');
+            }
+        });
+    });
+
+    document.querySelectorAll('.upload-form').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = form.dataset.refugioId;
+            const fileInput = form.querySelector('input[type="file"]');
+            const btn = form.querySelector('button[type="submit"]');
+            if (!fileInput.files.length) {
+                showMessage('Selecciona un archivo primero', 'warning');
+                return;
+            }
+
+            const data = new FormData();
+            data.append('file', fileInput.files[0]);
+            setLoading(btn, true, 'Subiendo...');
+
+            try {
+                await apiFetch(`/refugios/${id}/imagen`, {
+                    method: 'POST',
+                    body: data,
+                });
+                showMessage('Imagen subida', 'success');
+                window.location.reload();
+            } catch (err) {
+                showMessage(err.message || 'Error al subir imagen', 'danger');
+                setLoading(btn, false, 'Subir');
+            }
+        });
+
+        const cancelBtn = form.querySelector('[data-cancel-upload]');
+        cancelBtn?.addEventListener('click', () => {
+            form.classList.add('d-none');
+            const input = form.querySelector('input[type="file"]');
+            if (input) input.value = '';
+        });
+    });
+});
+</script>
 
 {% endblock %}

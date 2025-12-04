@@ -1,0 +1,633 @@
+{% extends "base.html" %}
+
+{% block title %}Mascotas - Refugios & Adopciones{% endblock %}
+
+{% block content %}
+
+{% set activas = mascotas | selectattr('estado') | list %}
+{% set inactivas = mascotas | rejectattr('estado') | list %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Mascotas registradas</h2>
+        <p class="text-muted mb-0">Crea, filtra, adopta y registra eventos de cuidado.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="badge rounded-pill bg-primary">Total: {{ mascotas|length }}</span>
+        <span class="badge rounded-pill bg-success">Activas: {{ activas|length }}</span>
+        <span class="badge rounded-pill bg-secondary">Inactivas: {{ inactivas|length }}</span>
+        {% if refugio_id %}
+        <span class="badge rounded-pill bg-info text-dark">Filtro refugio: {{ refugio_id }}</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-4">
+        <div class="form-section h-100">
+            <div class="section-title">
+                <span class="dot"></span>
+                <div>
+                    <h5 class="mb-0">Filtrar por refugio</h5>
+                    <small class="text-muted">Usa /web/mascotas?refugio_id=ID</small>
+                </div>
+            </div>
+            <form id="filter-form" method="get">
+                <div class="mb-3">
+                    <label class="form-label">Refugio</label>
+                    <select class="form-select" id="filter-refugio" name="refugio_id">
+                        <option value="">Todos</option>
+                        {% for r in refugios %}
+                            <option value="{{ r.id }}" {% if refugio_id and refugio_id == r.id %}selected{% endif %}>
+                                {{ r.nombre }} (ID {{ r.id }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100">Aplicar filtro</button>
+                    <a href="/web/mascotas" class="btn btn-outline-secondary">Limpiar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="form-section">
+            <div class="section-title">
+                <span class="dot"></span>
+                <div>
+                    <h5 class="mb-0">Registrar nueva mascota</h5>
+                    <small class="text-muted">POST /mascotas/ (JSON)</small>
+                </div>
+            </div>
+            <form id="create-mascota-form" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" name="nombre" class="form-control" placeholder="Ej. Luna" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Especie</label>
+                    <select name="especie" class="form-select" required>
+                        <option value="Dog">Perro (Dog)</option>
+                        <option value="Cat">Gato (Cat)</option>
+                        <option value="Rabbit">Conejo (Rabbit)</option>
+                        <option value="Bird">Ave (Bird)</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Raza (opcional)</label>
+                    <input type="text" name="raza" class="form-control" placeholder="Raza">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Edad (anos)</label>
+                    <input type="number" name="edad" min="0" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Sexo</label>
+                    <select name="sexo" class="form-select" required>
+                        <option value="M">Macho (M)</option>
+                        <option value="F">Hembra (F)</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Refugio</label>
+                    <select name="refugio_id" class="form-select" required>
+                        <option value="">Selecciona refugio</option>
+                        {% for r in refugios %}
+                            <option value="{{ r.id }}">{{ r.nombre }} (ID {{ r.id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 d-flex align-items-center">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="mascota-estado" name="estado" checked>
+                        <label class="form-check-label" for="mascota-estado">Disponible</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Guardar mascota</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">Listado actual</h5>
+    <a class="btn btn-outline-secondary btn-sm" href="/docs" target="_blank" rel="noopener">Ver docs de la API</a>
+</div>
+
+{% if mascotas %}
+<div class="row g-3">
+    {% for m in mascotas %}
+    <div class="col-md-6 col-xl-4">
+        <div class="app-card pet-card h-100 d-flex flex-column gap-2">
+            {% if m.foto_url %}
+                <div class="pet-image-wrapper">
+                    <img src="{{ m.foto_url }}" alt="{{ m.nombre }}" class="pet-image">
+                </div>
+            {% else %}
+                <div class="border rounded text-center py-4 text-muted small bg-light">
+                    Sin foto
+                </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 class="mb-1">{{ m.nombre }}</h5>
+                    <div class="text-muted small mb-1">
+                        ID: {{ m.id }} | Refugio: {{ m.refugio.nombre if m.refugio else 'Sin refugio' }} (ID {{ m.refugio_id }})
+                    </div>
+                    <p class="mb-1 text-muted">
+                        {{ m.especie.value if m.especie else m.especie }}
+                        {% if m.raza %}| {{ m.raza }}{% endif %}
+                    </p>
+                    <p class="mb-1 text-muted">
+                        Edad: {{ m.edad }} anos | Sexo: {{ m.sexo }}
+                    </p>
+                </div>
+                <div class="text-end">
+                    <span class="badge {{ 'bg-success' if m.estado else 'bg-danger' }}">
+                        {{ 'Disponible' if m.estado else 'No disponible' }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-sm btn-outline-secondary" type="button"
+                        data-edit-mascota
+                        data-id="{{ m.id }}"
+                        data-nombre="{{ m.nombre }}"
+                        data-especie="{{ m.especie.value if m.especie else m.especie }}"
+                        data-raza="{{ m.raza }}"
+                        data-edad="{{ m.edad }}"
+                        data-sexo="{{ m.sexo }}"
+                        data-estado="{{ m.estado }}"
+                        data-refugio="{{ m.refugio_id }}">
+                    Editar
+                </button>
+                {% if m.estado %}
+                <button class="btn btn-sm btn-outline-primary" type="button"
+                        data-adoptar
+                        data-id="{{ m.id }}"
+                        data-nombre="{{ m.nombre }}"
+                        data-refugio="{{ m.refugio_id }}">
+                    Adoptar
+                </button>
+                {% else %}
+                <button class="btn btn-sm btn-outline-primary" type="button" disabled>
+                    Adoptada
+                </button>
+                {% endif %}
+                <button class="btn btn-sm btn-outline-info" type="button"
+                        data-toggle-cuidado="{{ m.id }}">
+                    Registrar cuidado
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" type="button"
+                        data-toggle-historial="{{ m.id }}">
+                    Historial
+                </button>
+                <button class="btn btn-sm btn-outline-dark" type="button"
+                        data-toggle-upload="{{ m.id }}">
+                    Subir foto
+                </button>
+                {% if m.estado %}
+                <button class="btn btn-sm btn-outline-danger" type="button" data-desactivar="{{ m.id }}">
+                    Desactivar
+                </button>
+                {% else %}
+                <button class="btn btn-sm btn-outline-success" type="button" data-activar="{{ m.id }}">
+                    Activar
+                </button>
+                {% endif %}
+            </div>
+
+            <form class="upload-form mt-2 d-none" data-mascota-id="{{ m.id }}">
+                <label class="form-label">Archivo de imagen</label>
+                <input type="file" name="file" class="form-control form-control-sm" accept="image/*" required>
+                <div class="d-flex gap-2 mt-2">
+                    <button type="submit" class="btn btn-sm btn-primary">Subir</button>
+                    <button type="button" class="btn btn-sm btn-link text-muted" data-cancel-upload>Cancelar</button>
+                </div>
+            </form>
+
+            <form class="cuidado-form mt-2 d-none" data-mascota-id="{{ m.id }}">
+                <div class="row g-2">
+                    <div class="col-12">
+                        <input type="text" name="tipo_evento" class="form-control form-control-sm"
+                               placeholder="Evento de cuidado (vacuna, control, etc.)" required>
+                    </div>
+                    <div class="col-6">
+                        <input type="number" name="costo" class="form-control form-control-sm" min="0" step="0.01"
+                               placeholder="Costo" required>
+                    </div>
+                    <div class="col-6">
+                        <input type="date" name="fecha" class="form-control form-control-sm">
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-2">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Guardar evento</button>
+                    <button type="button" class="btn btn-sm btn-link text-muted" data-cancel-cuidado>Cancelar</button>
+                </div>
+            </form>
+
+            <div class="historial-box mt-2 d-none" data-historial-list="{{ m.id }}">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong class="small mb-0">Historial</strong>
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                            data-costo-total="{{ m.id }}">Costo total</button>
+                </div>
+                <div class="historial-content small text-muted"></div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">
+    No hay mascotas registradas todavia. Usa el formulario de alta para crear una.
+</div>
+{% endif %}
+
+<!-- Modal editar mascota -->
+<div class="modal fade" id="editMascotaModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar mascota</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-mascota-form" class="row g-3">
+            <input type="hidden" name="id">
+            <div class="col-md-6">
+                <label class="form-label">Nombre</label>
+                <input type="text" name="nombre" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Especie</label>
+                <select name="especie" class="form-select" required>
+                    <option value="Dog">Perro (Dog)</option>
+                    <option value="Cat">Gato (Cat)</option>
+                    <option value="Rabbit">Conejo (Rabbit)</option>
+                    <option value="Bird">Ave (Bird)</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Raza</label>
+                <input type="text" name="raza" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Edad</label>
+                <input type="number" name="edad" class="form-control" min="0" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Sexo</label>
+                <select name="sexo" class="form-select" required>
+                    <option value="M">M</option>
+                    <option value="F">F</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Refugio</label>
+                <select name="refugio_id" class="form-select" required>
+                    <option value="">Selecciona refugio</option>
+                    {% for r in refugios %}
+                        <option value="{{ r.id }}">{{ r.nombre }} (ID {{ r.id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6 d-flex align-items-center">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="edit-mascota-estado" name="estado">
+                    <label class="form-check-label" for="edit-mascota-estado">Disponible</label>
+                </div>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary w-100">Guardar cambios</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal adopcion -->
+<div class="modal fade" id="adopcionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Registrar adopcion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="adopcion-form" class="row g-3" action="/web/adopciones/crear" method="post">
+            <input type="hidden" name="mascota_id">
+            <div>
+                <strong id="adopcion-mascota-label"></strong>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Adoptante</label>
+                <input type="text" name="adoptante" class="form-control" required>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Fecha de adopcion</label>
+                <input type="date" name="fecha_adopcion" class="form-control" required>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Refugio</label>
+                <select name="refugio_id" class="form-select" required>
+                    <option value="">Selecciona refugio</option>
+                    {% for r in refugios %}
+                        <option value="{{ r.id }}">{{ r.nombre }} (ID {{ r.id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary w-100">Registrar adopcion</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Crear mascota
+    const createForm = document.getElementById('create-mascota-form');
+    createForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = createForm.querySelector('button[type="submit"]');
+        setLoading(submitBtn, true);
+
+        const payload = {
+            nombre: createForm.nombre.value.trim(),
+            especie: createForm.especie.value,
+            raza: createForm.raza.value.trim() || null,
+            edad: Number(createForm.edad.value),
+            sexo: createForm.sexo.value,
+            estado: createForm.estado.checked,
+            refugio_id: Number(createForm.refugio_id.value),
+        };
+
+        try {
+            await apiFetch('/mascotas/', {
+                method: 'POST',
+                body: JSON.stringify(payload),
+            });
+            showMessage('Mascota creada', 'success');
+            window.location.reload();
+        } catch (err) {
+            showMessage(err.message || 'Error al crear mascota', 'danger');
+            setLoading(submitBtn, false, 'Guardando...');
+        }
+    });
+
+    // Editar mascota
+    const editModalEl = document.getElementById('editMascotaModal');
+    const editModal = editModalEl ? new bootstrap.Modal(editModalEl) : null;
+    const editForm = document.getElementById('edit-mascota-form');
+
+    document.querySelectorAll('[data-edit-mascota]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (!editForm || !editModal) return;
+            editForm.id.value = btn.dataset.id;
+            editForm.nombre.value = btn.dataset.nombre || '';
+            editForm.especie.value = btn.dataset.especie || 'Dog';
+            editForm.raza.value = btn.dataset.raza || '';
+            editForm.edad.value = btn.dataset.edad || 0;
+            editForm.sexo.value = btn.dataset.sexo || 'M';
+            editForm.estado.checked = btn.dataset.estado === 'True' || btn.dataset.estado === 'true' || btn.dataset.estado === '1';
+            editForm.refugio_id.value = btn.dataset.refugio || '';
+            editModal.show();
+        });
+    });
+
+    editForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = editForm.id.value;
+        const submitBtn = editForm.querySelector('button[type="submit"]');
+        setLoading(submitBtn, true);
+
+        const payload = {
+            nombre: editForm.nombre.value.trim(),
+            especie: editForm.especie.value,
+            raza: editForm.raza.value.trim() || null,
+            edad: Number(editForm.edad.value),
+            sexo: editForm.sexo.value,
+            estado: editForm.estado.checked,
+            refugio_id: Number(editForm.refugio_id.value),
+        };
+
+        try {
+            await apiFetch(`/mascotas/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(payload),
+            });
+            showMessage('Mascota actualizada', 'success');
+            window.location.reload();
+        } catch (err) {
+            showMessage(err.message || 'Error al actualizar mascota', 'danger');
+            setLoading(submitBtn, false, 'Guardando...');
+        }
+    });
+
+    // Activar / desactivar
+    document.querySelectorAll('[data-desactivar]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.desactivar;
+            if (!confirm('Desactivar esta mascota?')) return;
+            setLoading(btn, true, 'Desactivando...');
+            try {
+                await apiFetch(`/mascotas/${id}`, { method: 'DELETE' });
+                showMessage('Mascota desactivada', 'success');
+                window.location.reload();
+            } catch (err) {
+                showMessage(err.message || 'Error al desactivar', 'danger');
+                setLoading(btn, false, 'Desactivar');
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-activar]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.activar;
+            setLoading(btn, true, 'Activando...');
+            try {
+                await apiFetch(`/mascotas/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ estado: true }),
+                });
+                showMessage('Mascota activada', 'success');
+                window.location.reload();
+            } catch (err) {
+                showMessage(err.message || 'No se pudo activar', 'danger');
+                setLoading(btn, false, 'Activar');
+            }
+        });
+    });
+
+    // Upload imagen mascota
+    document.querySelectorAll('[data-toggle-upload]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.toggleUpload;
+            const form = document.querySelector(`.upload-form[data-mascota-id="${id}"]`);
+            if (form) form.classList.toggle('d-none');
+        });
+    });
+
+    document.querySelectorAll('.upload-form').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = form.dataset.mascotaId;
+            const fileInput = form.querySelector('input[type="file"]');
+            const btn = form.querySelector('button[type="submit"]');
+            if (!fileInput.files.length) {
+                showMessage('Selecciona un archivo primero', 'warning');
+                return;
+            }
+            const data = new FormData();
+            data.append('file', fileInput.files[0]);
+            setLoading(btn, true, 'Subiendo...');
+            try {
+                await apiFetch(`/mascotas/${id}/imagen`, {
+                    method: 'POST',
+                    body: data,
+                });
+                showMessage('Imagen subida', 'success');
+                window.location.reload();
+            } catch (err) {
+                showMessage(err.message || 'Error al subir imagen', 'danger');
+                setLoading(btn, false, 'Subir');
+            }
+        });
+
+        form.querySelector('[data-cancel-upload]')?.addEventListener('click', () => {
+            form.classList.add('d-none');
+            const input = form.querySelector('input[type="file"]');
+            if (input) input.value = '';
+        });
+    });
+
+    // Cuidado / historial
+    document.querySelectorAll('[data-toggle-cuidado]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const form = document.querySelector(`.cuidado-form[data-mascota-id="${btn.dataset.toggleCuidado}"]`);
+            if (form) form.classList.toggle('d-none');
+        });
+    });
+
+    document.querySelectorAll('.cuidado-form').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = form.dataset.mascotaId;
+            const btn = form.querySelector('button[type="submit"]');
+            setLoading(btn, true, 'Guardando...');
+            const payload = {
+                mascota_id: Number(id),
+                tipo_evento: form.tipo_evento.value.trim(),
+                costo: Number(form.costo.value),
+            };
+            if (form.fecha.value) {
+                payload.fecha = form.fecha.value;
+            }
+            try {
+                await apiFetch('/historial/', {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                });
+                showMessage('Evento registrado', 'success');
+                form.reset();
+                setLoading(btn, false, 'Guardar evento');
+            } catch (err) {
+                showMessage(err.message || 'Error al registrar evento', 'danger');
+                setLoading(btn, false, 'Guardar evento');
+            }
+        });
+
+        form.querySelector('[data-cancel-cuidado]')?.addEventListener('click', () => {
+            form.classList.add('d-none');
+            form.reset();
+        });
+    });
+
+    async function cargarHistorial(mascotaId) {
+        const box = document.querySelector(`[data-historial-list="${mascotaId}"]`);
+        if (!box) return;
+        const content = box.querySelector('.historial-content');
+        box.classList.remove('d-none');
+        content.textContent = 'Cargando...';
+        try {
+            const eventos = await apiFetch(`/historial/mascota/${mascotaId}`);
+            if (!eventos.length) {
+                content.textContent = 'Sin eventos registrados.';
+                return;
+            }
+            const list = document.createElement('ul');
+            list.className = 'mb-0 ps-3';
+            eventos.forEach(e => {
+                const item = document.createElement('li');
+                item.textContent = `${e.fecha}: ${e.tipo_evento} ($${e.costo})`;
+                list.appendChild(item);
+            });
+            content.innerHTML = '';
+            content.appendChild(list);
+        } catch (err) {
+            content.textContent = 'Error al cargar historial: ' + err.message;
+        }
+    }
+
+    document.querySelectorAll('[data-toggle-historial]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.toggleHistorial;
+            cargarHistorial(id);
+        });
+    });
+
+    document.querySelectorAll('[data-costo-total]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.costoTotal;
+            try {
+                const info = await apiFetch(`/historial/mascota/${id}/costo-total`);
+                const box = document.querySelector(`[data-historial-list="${id}"] .historial-content`);
+                if (box) {
+                    const msg = `Total eventos: ${info.total_eventos}, costo acumulado: $${info.costo_total}`;
+                    const p = document.createElement('p');
+                    p.className = 'mb-1';
+                    p.textContent = msg;
+                    box.prepend(p);
+                }
+                showMessage('Costo total actualizado', 'info');
+            } catch (err) {
+                showMessage(err.message || 'No se pudo calcular costo', 'danger');
+            }
+        });
+    });
+
+    // Adopcion
+    const adopcionModalEl = document.getElementById('adopcionModal');
+    const adopcionModal = adopcionModalEl ? new bootstrap.Modal(adopcionModalEl) : null;
+    const adopcionForm = document.getElementById('adopcion-form');
+    const adopcionLabel = document.getElementById('adopcion-mascota-label');
+
+    document.querySelectorAll('[data-adoptar]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (!adopcionForm || !adopcionModal) return;
+            adopcionForm.mascota_id.value = btn.dataset.id;
+            adopcionLabel.textContent = `Mascota: ${btn.dataset.nombre} (ID ${btn.dataset.id})`;
+            adopcionForm.refugio_id.value = btn.dataset.refugio || '';
+            adopcionModal.show();
+        });
+    });
+
+    adopcionForm?.addEventListener('submit', () => {
+        const submitBtn = adopcionForm.querySelector('button[type="submit"]');
+        setLoading(submitBtn, true, 'Enviando...');
+    });
+});
+</script>
+
+{% endblock %}

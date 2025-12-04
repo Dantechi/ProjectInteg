@@ -37,13 +37,17 @@ async def list_refugios(
     limit: int = Query(10, ge=1, le=100),
     solo_activos: bool = Query(True, description="Si True, solo refugios activos"),
 ):
-    stmt = select(Refugio)
-    if solo_activos:
-        stmt = stmt.where(Refugio.activo == True)
+    try:
+        stmt = select(Refugio)
+        if solo_activos:
+            stmt = stmt.where(Refugio.activo == True)
 
-    stmt = stmt.offset(skip).limit(limit)
-    result = await session.exec(stmt)
-    return result.all()
+        stmt = stmt.offset(skip).limit(limit)
+        result = await session.execute(stmt)
+        return result.scalars().all()
+    except Exception:
+        # No exponemos detalles sensibles, solo indicamos que hubo un fallo.
+        raise HTTPException(status_code=500, detail="Error al obtener refugios")
 
 
 @router.get(
@@ -116,8 +120,8 @@ async def list_mascotas_refugio(
         raise HTTPException(status_code=404, detail="Refugio no encontrado")
 
     stmt = select(Mascota).where(Mascota.refugio_id == refugio_id)
-    result = await session.exec(stmt)
-    return result.all()
+    result = await session.execute(stmt)
+    return result.scalars().all()
 
 
 # -----------------------------

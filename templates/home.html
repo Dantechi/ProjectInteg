@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Inicio · Refugios & Adopciones{% endblock %}
+{% block title %}Inicio - Refugios & Adopciones{% endblock %}
 
 {% block content %}
 
@@ -10,7 +10,7 @@
             <h1 class="mb-2">{{ app_name }}</h1>
             <p class="lead mb-3">{{ subtitle }}</p>
             <p class="mb-4 text-muted">
-                Backend desplegado con FastAPI, Clever Cloud (PostgreSQL), Render y Supabase para gestión de imágenes.
+                Backend desplegado con FastAPI, Clever Cloud (PostgreSQL), Render y Supabase para gestion de imagenes.
             </p>
             <div class="d-flex gap-2 flex-wrap">
                 <a href="/web/refugios" class="btn btn-primary btn-lg">
@@ -19,8 +19,14 @@
                 <a href="/web/mascotas" class="btn btn-outline-light btn-lg">
                     Ver mascotas
                 </a>
+                <a href="/web/historial" class="btn btn-outline-light btn-lg">
+                    Ver historial
+                </a>
+                <a href="/web/adopciones" class="btn btn-outline-light btn-lg">
+                    Ver adopciones
+                </a>
                 <a href="/docs" class="btn btn-outline-secondary">
-                    Ver documentación de la API
+                    Ver documentacion de la API
                 </a>
             </div>
         </div>
@@ -32,7 +38,7 @@
                 <div class="stat-icon bg-icon-blue"></div>
                 <div>
                     <div class="stat-label">Base de datos</div>
-                    <div class="stat-value">PostgreSQL · Clever Cloud</div>
+                    <div class="stat-value">PostgreSQL + Clever Cloud</div>
                 </div>
             </div>
             <div class="stat-card">
@@ -45,7 +51,7 @@
             <div class="stat-card">
                 <div class="stat-icon bg-icon-yellow"></div>
                 <div>
-                    <div class="stat-label">Imágenes</div>
+                    <div class="stat-label">Imagenes</div>
                     <div class="stat-value">Supabase Storage</div>
                 </div>
             </div>
@@ -59,7 +65,7 @@
     <div class="col-md-4">
         <div class="app-card app-card-clickable">
             <h5 class="mb-2">Refugios</h5>
-            <p class="mb-3">Crea y gestiona refugios con su ubicación, estado y foto representativa.</p>
+            <p class="mb-3">Crea y gestiona refugios con su ubicacion, estado y foto representativa.</p>
             <a href="/web/refugios" class="btn btn-sm btn-primary">Ir a refugios</a>
         </div>
     </div>
@@ -67,8 +73,24 @@
     <div class="col-md-4">
         <div class="app-card app-card-clickable">
             <h5 class="mb-2">Mascotas</h5>
-            <p class="mb-3">Registra mascotas, especie, edad y fotografía almacenada en Supabase.</p>
+            <p class="mb-3">Registra mascotas, especie, edad y fotografia almacenada en Supabase.</p>
             <a href="/web/mascotas" class="btn btn-sm btn-primary">Ir a mascotas</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="app-card app-card-clickable">
+            <h5 class="mb-2">Historial</h5>
+            <p class="mb-3">Eventos de cuidado y costos de las mascotas.</p>
+            <a href="/web/historial" class="btn btn-sm btn-primary">Ir a historial</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="app-card app-card-clickable">
+            <h5 class="mb-2">Adopciones</h5>
+            <p class="mb-3">Registro de adopciones con fecha y adoptante.</p>
+            <a href="/web/adopciones" class="btn btn-sm btn-primary">Ir a adopciones</a>
         </div>
     </div>
 

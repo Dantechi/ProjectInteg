@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboards - Refugios & Adopciones{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Dashboards</h2>
+    <a class="btn btn-outline-secondary btn-sm" href="/docs" target="_blank" rel="noopener">Ver API</a>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="form-section">
+            <h5 class="mb-3">Mascotas por refugio</h5>
+            <div style="height:300px">
+                <canvas id="chartMascotasRefugio"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="form-section">
+            <h5 class="mb-3">Adopciones por mes (últimos 5 años)</h5>
+            <div style="height:300px">
+                <canvas id="chartAdopcionesMes"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const mascotasPorRefugio = {{ data_mascotas_por_refugio | tojson }};
+  const adopcionesPorMes = {{ data_adopciones_por_mes | tojson }};
+
+  // A) Barras
+  const labelsA = mascotasPorRefugio.map(x => x.refugio);
+  const dataA = mascotasPorRefugio.map(x => x.total);
+  new Chart(document.getElementById('chartMascotasRefugio'), {
+    type: 'bar',
+    data: { labels: labelsA, datasets: [{ label: 'Mascotas', data: dataA, backgroundColor: '#2563eb' }] },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+
+  // B) Línea
+  const labelsB = adopcionesPorMes.map(x => x.label);
+  const dataB = adopcionesPorMes.map(x => x.total);
+  new Chart(document.getElementById('chartAdopcionesMes'), {
+    type: 'line',
+    data: { labels: labelsB, datasets: [{ label: 'Adopciones', data: dataB, tension: 0.3, borderColor: '#22c55e', fill: false }] },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+</script>
+{% endblock %}

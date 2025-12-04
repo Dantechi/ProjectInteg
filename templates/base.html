@@ -11,7 +11,34 @@
           crossorigin="anonymous">
 
     <!-- CSS propio -->
-    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/styless.css">
+
+    <style>
+        /* Helpers para nuevas secciones */
+        .form-section {
+            background-color: #ffffff;
+            border-radius: 0.9rem;
+            padding: 1.25rem;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .section-title .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #2563eb, #22c55e);
+            display: inline-block;
+        }
+        .bg-muted {
+            background: #f8fafc;
+        }
+    </style>
 </head>
 <body>
 
@@ -42,6 +69,21 @@
             Mascotas
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link{% if active_page == 'historial' %} active{% endif %}" href="/web/historial">
+            Historial
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link{% if active_page == 'adopciones' %} active{% endif %}" href="/web/adopciones">
+            Adopciones
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link{% if active_page == 'dashboards' %} active{% endif %}" href="/web/dashboards">
+            Dashboards
+          </a>
+        </li>
 
         <li class="nav-item">
           <a class="nav-link" href="/docs">API Docs</a>
@@ -51,6 +93,8 @@
     </div>
   </div>
 </nav>
+
+<div id="flash-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>
 
 <main class="py-4">
     <div class="container app-container">
@@ -70,6 +114,53 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+
+<script>
+    const flashHost = document.getElementById('flash-container');
+
+    function showMessage(message, type = 'success') {
+        if (!flashHost) return;
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} shadow mb-2`;
+        alert.role = 'alert';
+        alert.textContent = message;
+        flashHost.appendChild(alert);
+        setTimeout(() => alert.remove(), 3800);
+    }
+
+    async function apiFetch(url, options = {}) {
+        const opts = { ...options };
+        const headers = opts.headers ? { ...opts.headers } : {};
+
+        if (!(opts.body instanceof FormData) && !headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        opts.headers = headers;
+        const response = await fetch(url, opts);
+        const contentType = response.headers.get('content-type') || '';
+        const isJson = contentType.includes('application/json');
+        const payload = isJson ? await response.json() : await response.text();
+
+        if (!response.ok) {
+            const detail = (payload && payload.detail) ? payload.detail : response.statusText;
+            throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+        }
+        return payload;
+    }
+
+    function setLoading(button, loading, textWhenLoading = 'Guardando...') {
+        if (!button) return;
+        if (loading) {
+            button.dataset.originalText = button.textContent;
+            button.textContent = textWhenLoading;
+            button.disabled = true;
+        } else {
+            button.textContent = button.dataset.originalText || button.textContent;
+            button.disabled = false;
+        }
+    }
+</script>
 
 </body>
 </html>

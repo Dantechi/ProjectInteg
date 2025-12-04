@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Historial Mascota - Refugios & Adopciones{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Historial de mascota ID {{ mascota_id }}</h2>
+    <a class="btn btn-outline-secondary btn-sm" href="/web/historial">Volver</a>
+  </div>
+
+<div class="mb-3">
+  <strong>Costo total:</strong> ${{ '%.2f'|format(total) }}
+</div>
+
+{% if eventos %}
+<div class="table-responsive">
+  <table class="table table-sm align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Fecha</th>
+        <th>Evento</th>
+        <th>Costo</th>
+        <th>Mascota</th>
+        <th>Refugio</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in eventos %}
+      <tr>
+        <td>{{ e.id }}</td>
+        <td>{{ e.fecha }}</td>
+        <td>{{ e.tipo_evento }}</td>
+        <td>${{ '%.2f'|format(e.costo) }}</td>
+        <td>{{ e.mascota }}</td>
+        <td>{{ e.refugio }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">No hay eventos para esta mascota.</div>
+{% endif %}
+{% endblock %}
